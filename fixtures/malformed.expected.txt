@@ -1,0 +1,2 @@
+valid=0 invalid=3
+level INFO=0 WARN=0 ERROR=0

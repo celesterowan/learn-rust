@@ -1,0 +1,2 @@
+# Preserve byte-exact reports and portable source text on Windows checkouts.
+* text=auto eol=lf

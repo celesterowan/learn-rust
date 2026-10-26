@@ -1,0 +1,10 @@
+INFO api 10
+WARN api 20
+ERROR worker 100
+
+INFO worker 0
+ERROR auth 7
+INFO api 15
+DEBUG api 4
+INFO Api 2
+INFO api -1
