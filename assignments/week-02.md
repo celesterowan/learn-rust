@@ -21,22 +21,19 @@ borrowing become the subject of week 3.
 
 ## Required Starter
 
-Define a small enum representing an empty dataset or a nonempty dataset's
-count. Write a function classifying a slice and match both alternatives in
+Use the supplied Dataset enum representing an empty dataset or a nonempty
+dataset's count. Implement `classify` and run the supplied exhaustive-match
 tests for empty and two-element inputs. Inspect one array, Vec, and slice:
 record which owns storage and which is a view. This is a test-sized exercise,
 not a second CLI.
 
 ## Required Intermediate project
 
-```powershell
-cargo new --vcs none .\rust\week02-stats
-Push-Location .\rust\week02-stats
-cargo run -- 4 0 9 4
-cargo test
-cargo fmt --check
-Pop-Location
-```
+Use the supplied crate in `rust/week02-stats`; do not run `cargo new` over it.
+Read the [shared statistics spec](../docs/exercises/stats.md) for the file map,
+ordered R1-R6 TODOs, and separate build/test-compilation/acceptance commands.
+The Starter enum and function headers are supplied in `src/lib.rs`; implement
+their TODO bodies. Active tests intentionally fail until implementation.
 
 Implement a pure function taking `&[u32]` and returning a Stats struct with
 count, sum, optional minimum, and optional maximum. Use u64 for count/sum
@@ -64,6 +61,29 @@ No arguments prints `count=0 sum=0 min=none max=none`. Report internal
 arithmetic failure with exit 1 and `error:` rather than panic.
 
 ## Gate, tests, and deliverables
+
+After implementing, run from the course root.
+
+**Windows PowerShell**
+
+```powershell
+Push-Location .\rust\week02-stats
+cargo run -- 4 0 9 4
+cargo test
+cargo fmt --check
+Pop-Location
+```
+
+**macOS Terminal**
+
+```sh
+(
+  cd rust/week02-stats &&
+  cargo run -- 4 0 9 4 &&
+  cargo test &&
+  cargo fmt --check
+)
+```
 
 Test empty, singleton, duplicates, zero, ascending/descending inputs, and
 `u32::MAX` in the pure function. Test rejected `-1`, `1001`, `1.0`, `""`,

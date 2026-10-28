@@ -23,6 +23,7 @@ relationship; it cannot keep a local allocation alive.
 
 ## Required Starter
 
+Complete W3-S1 and W3-S2 in the supplied `tests/week03.rs`.
 In test-sized experiments, move a String, copy a u32, and clone a String.
 Record a use-after-move compiler diagnostic, then remove the broken code.
 Show a shared borrow followed by a mutable borrow after its last use.
@@ -32,19 +33,15 @@ Copy and Drop on that type.
 
 ## Required Intermediate project
 
-Create the crate once; weeks 4-6 extend it:
+Use the supplied `rust/logscope` crate; weeks 4-6 extend it in place.
+Do not run `cargo new`. Follow the
+[week 3 file/TODO map and focused commands](../docs/exercises/rust-logscope.md#week-3-ownership-without-parsing).
+`cargo build` and `cargo test --no-run` must pass initially. Run only the
+week03 acceptance target this week; future active tests intentionally fail.
 
-```powershell
-cargo new --lib --vcs none .\rust\logscope
-Push-Location .\rust\logscope
-cargo test
-cargo fmt --check
-Pop-Location
-```
-
-In `src/lib.rs`, define Level with Info, Warn, Error variants, a
-`Record<'a>` containing level, `service: &'a str`, and `duration: u32`,
-and an OwnedRecord with an owned String service.
+In `src/model.rs`, the supplied types define Level with Info, Warn, Error
+variants, a `Record<'a>` containing level, `service: &'a str`, and `duration: u32`,
+and an OwnedRecord with an owned String service. Implement W3-1 through W3-3.
 
 Required APIs: `record(level: Level, service: &str, duration: u32) -> Record<'_>`,
 `service_name<'a>(record: &Record<'a>) -> &'a str`, and
@@ -53,6 +50,27 @@ tests. These accept already-typed data: no validation or parsing is due.
 Convert service storage exactly when producing OwnedRecord, not when borrowing.
 
 ## Gate, tests, and deliverables
+
+After implementing, run from the course root.
+
+**Windows PowerShell**
+
+```powershell
+Push-Location .\rust\logscope
+cargo test --test week03
+cargo fmt --check
+Pop-Location
+```
+
+**macOS Terminal**
+
+```sh
+(
+  cd rust/logscope &&
+  cargo test --test week03 &&
+  cargo fmt --check
+)
+```
 
 Construct Info/api/10, Warn/api/20, and Error/worker/100 records in memory.
 Verify fields, all levels, and zero duration. Compare the service pointer with

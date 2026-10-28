@@ -16,24 +16,28 @@ small fixes 90m + final checks 60m + comparison/submission 90m = 360m.
 ## Assignment
 
 No new product. Preserve the two sequential CLIs, library parallel extensions,
-and Go HTTP command. Add `parity_test.go` at the root of `go/logscope`.
-Build the Rust CLI via cargo with the relative manifest
-`..\..\rust\logscope\Cargo.toml`; build the Go CLI into t.TempDir.
-Use os/exec argument arrays and capture output bytes, never PowerShell
-redirection or string comparisons that normalize line endings.
+and Go HTTP command. Use the supplied `go/logscope/parity_test.go` and
+[capstone instructions](../docs/exercises/parity.md). Trace the harness,
+run it, and repair implementation gaps rather than writing process-launch
+infrastructure from scratch.
 
-The harness may use Cargo's default debug binary under that crate's target
-directory; require default Cargo target settings and document this assumption.
-Build failures fail the test. Use exec.CommandContext with a generous timeout
-to avoid a stuck child; report which command failed.
+The harness builds both CLIs into temporary locations, with an explicit Cargo
+target directory. It uses filepath.Join, native executable suffixes, argument
+arrays, byte captures, and command timeouts. Both toolchains must be on PATH.
+Build failures fail the test. The `parity` build tag keeps this cross-language
+requirement out of earlier Go gates; final acceptance must include the tag.
 
-Compare both binaries against all three expected fixture files, not merely
-against each other. Also compare status/stderr behavior for no argument,
-two arguments, nonexistent file, and a temporary filename with spaces.
-Fatal error wording may differ after `error:`. Add one temporary CRLF input
-and one invalid-byte input with manually calculated expectations.
+The active cases compare each binary against all three expected fixture files,
+not merely against each other. They also cover no/two arguments, nonexistent
+files, filenames with spaces or a leading dash, temporary CRLF input, and
+invalid bytes with manually calculated expectations. Fatal error wording may
+differ after `error:`.
 
 ## Final checks
+
+From the course root, run only your OS's block.
+
+**Windows PowerShell**
 
 ```powershell
 Push-Location .\rust\logscope
@@ -45,8 +49,28 @@ Push-Location .\go\logscope
 gofmt -l .
 go vet ./...
 go test ./...
+go test -tags parity -count=1 -run '^TestParity$' .
 go test -race ./...
 Pop-Location
+```
+
+**macOS Terminal**
+
+```sh
+(
+  cd rust/logscope &&
+  cargo fmt --check &&
+  cargo test &&
+  cargo clippy --all-targets -- -D warnings
+) &&
+(
+  cd go/logscope &&
+  gofmt -l . &&
+  go vet ./... &&
+  go test ./... &&
+  go test -tags parity -count=1 -run '^TestParity$' . &&
+  go test -race ./...
+)
 ```
 
 Also rerun checks in the independent week01-hello, week02-stats, and Go stats

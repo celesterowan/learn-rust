@@ -24,8 +24,28 @@ Start with [SETUP.md](SETUP.md), keep the
 [C++ comparison guide](CPP-TO-RUST-AND-GO.md) nearby, and adapt the
 [reflection template](docs/templates/reflection.md) for each submission.
 The [shared logscope contract](docs/logscope-contract.md) defines exact analyzer
-behavior. Starter implementations, completed submissions, and automated graders
-are not provided; create your own implementation and submission files as assigned.
+behavior. All required source projects now include buildable starter
+infrastructure, function signatures, learner TODOs, and active acceptance tests.
+Completed implementations and learner submissions are not provided.
+
+## Project specs and implementation guides
+
+Start each project with its spec, then follow that week's reading and rubric.
+Each guide maps the implementation order to specific files, functions, and tests.
+
+| Weeks | Supplied project | Spec |
+| --- | --- | --- |
+| 1 | Rust greeting and control-flow lab | [Greeting](docs/exercises/rust-hello.md) |
+| 2 and 7 | Matching Rust and Go statistics, plus Go aliasing labs | [Statistics](docs/exercises/stats.md) |
+| 3-6 | Rust records, analyzer, I/O traits, and scoped workers | [Rust logscope](docs/exercises/rust-logscope.md) |
+| 8-11 | Go analyzer, interfaces, cancellable workers, and local HTTP server | [Go logscope](docs/exercises/go-logscope.md) |
+| 12 | Supplied cross-language executable acceptance harness | [Parity capstone](docs/exercises/parity.md) |
+
+Builds and test compilation should pass before you implement anything.
+Behavioral acceptance tests are intentionally active and failing at learner
+TODOs. Use the week's focused test commands; later-week TODOs are not due early.
+By each gate, its acceptance tests must pass. Never skip tests or weaken
+expected results to hide an unfinished implementation.
 
 ## Learning goals
 
@@ -42,63 +62,126 @@ By the end, you should be able to:
 
 ## Setup
 
-Use a separate checkout of this repository, not a directory inside another
-project. Install current stable tools:
+Start with the detailed instructions for
+**[Windows PowerShell](SETUP.md#windows-powershell)** or
+**[macOS Terminal](SETUP.md#macos-terminal)**. Install or verify the following
+tools before the relevant week; do not install another copy if yours works.
 
-- [Rust installation](https://www.rust-lang.org/tools/install) and the
-  [Rust Book](https://doc.rust-lang.org/book/).
-- [Go installation](https://go.dev/doc/install) and
-  [A Tour of Go](https://go.dev/tour/).
-- Git and a text editor of your choice.
+| Download | Windows | macOS |
+| --- | --- | --- |
+| Git | [Git for Windows](https://git-scm.com/install/windows) | Apple's Command Line Tools, requested with `xcode-select --install` |
+| Rust and Cargo | [Stable rustup installer](https://www.rust-lang.org/tools/install) | [Official rustup instructions](https://doc.rust-lang.org/book/ch01-01-installation.html) |
+| Native linker/SDK | MSVC **Desktop development with C++** workload and Windows SDK | Apple's Command Line Tools; full Xcode is not required |
+| Go, by week 7 | [Stable Windows MSI](https://go.dev/dl/) for your architecture | [Stable macOS PKG](https://go.dev/dl/): arm64 for Apple silicon, amd64 for Intel |
 
-On Windows, Rust's MSVC toolchain requires Visual Studio C++ build tools and a
-Windows SDK. Your existing C++ installation may already provide them.
-Use the [official C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-installer's Desktop development with C++ workload if needed. Follow Microsoft's
-[getting-started chapter](https://microsoft.github.io/RustTraining/c-cpp-book/ch02-getting-started.html)
-for main/Cargo, but skip optional REPL installation, publishing, and external
-crate examples. Use stable Rust, not nightly.
-Reopen your terminal after installing tools, then check:
+An editor is required, but IDEs, Homebrew, GitHub CLI, and editor extensions
+are optional. Rustup includes Cargo; add rustfmt and clippy through rustup.
+The exercises use the standard libraries only. You do not need to download
+completed projects, third-party packages, or Microsoft's training repository.
+See [SETUP.md](SETUP.md) for installation, PATH, architecture, and race-detector
+details. Reopen your terminal after installing tools.
 
-```powershell
+These verification commands work in **both shells**; defer the Go command if
+you are not installing Go until week 7:
+
+```text
+git --version
+rustup show
 rustc --version
 cargo --version
 rustup component add rustfmt clippy
 go version
-git --version
 ```
 
-The course materials are present. Create implementation and submission
-directories as the assignments introduce them:
+### Download the course
+
+Already have this checkout with its handouts and fixtures? Use it; skip cloning.
+Otherwise, choose a separate user-writable directory, not one inside Chromium
+or another repository. These examples use your home directory's Projects folder.
+To submit through your own fork, first fork on GitHub and replace the URL below
+with **your fork's Code > HTTPS URL**. Cloning downloads a local checkout; it
+does not create a fork or grant permission to push to the original repository.
+
+**Windows PowerShell**
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\Projects" -ErrorAction Stop
+Set-Location "$HOME\Projects" -ErrorAction Stop
+git clone https://github.com/celesterowan/learn-rust.git learn-rust
+if ($LASTEXITCODE -ne 0) { throw 'Clone failed; resolve the error before continuing.' }
+Set-Location .\learn-rust -ErrorAction Stop
+```
+
+**macOS Terminal**
+
+```sh
+mkdir -p "$HOME/Projects" &&
+cd "$HOME/Projects" &&
+git clone https://github.com/celesterowan/learn-rust.git learn-rust &&
+cd learn-rust
+```
+
+If the destination exists, use the existing checkout or choose another name,
+not a nested clone. You should see README.md, SETUP.md, assignments, and fixtures.
+If the selected branch lacks these materials, obtain the published course
+branch/version rather than creating missing handouts.
+
+**ZIP alternative:** choose **Code > Download ZIP** on GitHub, then fully
+extract it using **Extract All** on Windows or Finder on macOS. Open the
+extracted directory containing README.md. A ZIP has no Git history/remotes;
+cloning is the recommended route for later commits and pushes.
+
+Continue with [week 1](assignments/week-01.md). Handouts and fixtures are
+included, along with all source scaffolds and tests linked above. Implement
+the supplied TODOs as each assignment directs; no extra project download or
+manual module initialization is needed.
+
+### Course directories and shell commands
+
+Run only your OS's command block. Examples start at the **course root**
+(the folder containing this README), unless stated otherwise. Windows uses
+PowerShell; macOS uses Terminal's zsh. Parenthesized macOS blocks leave your
+shell at the course root. Read blocks before running them: open the supplied
+project, implement the assignment, then run its focused checks. Stop and resolve failures
+before continuing. [SETUP.md](SETUP.md#shell-conventions-and-directory-plan)
+explains the shell conventions.
 
 ```text
 rust/
   week01-hello/    independent Cargo binary crate
   week02-stats/    independent Cargo binary crate
-  logscope/        typed-record library week 3; CLI added week 4
+  logscope/        staged TODOs: records week 3 through workers week 6
 go/
   stats/           independent Go module
   logscope/        Go analyzer, weeks 8-12
     cmd/logscope/  sequential CLI
-    cmd/logserve/  separate HTTP command, week 11
+    cmd/logserve/  separate HTTP command, TODOs due week 11
 fixtures/          provided shared inputs and expected outputs, week 4
 docs/
   submissions/    weekly reflections and self-assessments
 ```
 
-The rust/, go/, and docs/submissions/ directories are planned, not included
-starter projects. Each Rust project has its own Cargo manifest; each Go project
-has its own Go module. Run commands inside the corresponding project, not at
-the repository root.
+All source directories above are supplied; create docs/submissions/ for your
+own reflections. Do not run cargo new or go mod init over the scaffolds.
+Each Rust project
+has its own Cargo manifest; each Go project has its own Go module. Run commands
+inside the corresponding project, not at the repository root.
 There is no root Cargo workspace or Go module. Do not follow the source's
 workspace or dependency exercises for this course. Keep Cargo.lock for these
 application exercises; go.sum may not exist without external dependencies.
 
-All commands below start at your chosen course checkout root unless stated
-otherwise. Create the submission directory once:
+Create the submission directory once from the course root.
+
+**Windows PowerShell**
 
 ```powershell
 New-Item -ItemType Directory -Force .\docs\submissions
+```
+
+**macOS Terminal**
+
+```sh
+mkdir -p docs/submissions
 ```
 
 ## Microsoft chapter-to-week map
@@ -134,8 +217,9 @@ Every week's budget below totals six hours; use a seventh for catch-up.
 Rust weeks follow **C++ mental model -> Rust concept -> required Starter ->
 required Intermediate project -> optional Challenge -> reflection**. The tiers
 divide existing work, not double it. Challenge work is ungraded.
-Use the creation commands once to bootstrap the week's crate before its
-Starter; run listed checks after implementing the exercises.
+Follow the linked spec's TODO order for each Starter and Intermediate task.
+Build and compile tests first, then run the week's focused acceptance checks
+while implementing. Run full acceptance only when all stages are due.
 
 Following Microsoft's self-study method, attempt before expanding a source
 solution. If stuck for more than 15 minutes, inspect a relevant example or
@@ -279,11 +363,29 @@ bindings, shadowing, and value-producing blocks.
 expression to classify u32 values 0 and 7 as zero/nonzero. Predict and observe
 a mutability compiler error; correct it and explain shadowing versus mutation.
 
-**Required Intermediate:** create the crate, implement, then run:
+**Required Intermediate:** open the supplied `rust/week01-hello` crate and
+follow the [greeting spec's TODO order](docs/exercises/rust-hello.md).
+The manifest, executable wiring, and tests are provided; implement the learner
+functions rather than creating a new crate.
+
+No arguments prints `Hello, learner!` plus LF; one nonempty name prints
+`Hello, NAME!` plus LF. Preserve names, including quoted spaces and Unicode.
+An empty name or extra arguments means exit 2, empty stdout, and stderr
+starting `error:`. Success exits 0 with empty stderr. Factor and test greeting
+construction; test default, Ada, Ada Lovelace, and empty-name rejection.
+After `cargo build`, manually check extra arguments using the executable
+inside the crate: `.\target\debug\week01-hello.exe Ada extra` on Windows or
+`./target/debug/week01-hello Ada extra` on macOS. Immediately display
+`$LASTEXITCODE` in PowerShell or `printf 'exit=%s\n' "$?"` in Terminal;
+the expected code is 2.
+No panic for validation. CLI String/Vec and basic tests are small previews;
+no custom Result architecture or lifetime annotations are required.
+
+After implementing, run from the course root.
+
+**Windows PowerShell**
 
 ```powershell
-New-Item -ItemType Directory -Force .\rust
-cargo new --vcs none .\rust\week01-hello
 Push-Location .\rust\week01-hello
 cargo run -- Ada
 cargo test
@@ -291,14 +393,16 @@ cargo fmt --check
 Pop-Location
 ```
 
-No arguments prints `Hello, learner!` plus LF; one nonempty name prints
-`Hello, NAME!` plus LF. Preserve names, including quoted spaces and Unicode.
-An empty name or extra arguments means exit 2, empty stdout, and stderr
-starting `error:`. Success exits 0 with empty stderr. Factor and test greeting
-construction; test default, Ada, Ada Lovelace, and empty-name rejection.
-Manually check extra arguments with `$LASTEXITCODE` immediately after running.
-No panic for validation. CLI String/Vec and basic tests are small previews;
-no custom Result architecture or lifetime annotations are required.
+**macOS Terminal**
+
+```sh
+(
+  cd rust/week01-hello &&
+  cargo run -- Ada &&
+  cargo test &&
+  cargo fmt --check
+)
+```
 
 **Gate/deliverable:** submit crate and week-01 reflection with versions,
 test evidence, and one corrected compiler diagnostic. Explain the
@@ -322,7 +426,7 @@ reflection/checks 60m = 360m.
 
 **C++ mental model -> Rust concept:** vector/span and variant -> Vec/slices
 and explicit data-carrying alternatives.
-**Required Starter:** classify an empty versus nonempty slice with your own
+**Required Starter:** classify an empty versus nonempty slice with the supplied
 enum carrying the count for the nonempty case. Test both alternatives with
 exhaustive match; identify owners versus views for an array, Vec, and slice.
 
@@ -339,13 +443,32 @@ argument, empty arguments, and out-of-range values: exit 2, empty stdout,
 `count=0 sum=0 min=none max=none`. Arithmetic failure exits 1 with `error:`.
 Validate all input before printing.
 
+Use the supplied crate in `rust/week02-stats`; do not run `cargo new` over it.
+Start with the [shared spec and ordered TODOs](docs/exercises/stats.md).
+The scaffold is designed to build, but its active acceptance tests intentionally
+fail until you implement the learner functions.
+
+After implementing, run from the course root.
+
+**Windows PowerShell**
+
 ```powershell
-cargo new --vcs none .\rust\week02-stats
 Push-Location .\rust\week02-stats
 cargo run -- 4 0 9 4
 cargo test
 cargo fmt --check
 Pop-Location
+```
+
+**macOS Terminal**
+
+```sh
+(
+  cd rust/week02-stats &&
+  cargo run -- 4 0 9 4 &&
+  cargo test &&
+  cargo fmt --check
+)
 ```
 
 **Small ch9 previews:** Option models absent extrema/checked_add; numeric parse
@@ -384,15 +507,9 @@ borrowing after last use. Use a separate test-only Drop marker to set a
 borrowed boolean on destruction; check it after dropping the marker.
 Do not combine Copy and Drop.
 
-**Required Intermediate:** create only a library this week:
-
-```powershell
-cargo new --lib --vcs none .\rust\logscope
-Push-Location .\rust\logscope
-cargo test
-cargo fmt --check
-Pop-Location
-```
+**Required Intermediate:** use the supplied `rust/logscope` library.
+Follow the [week 3 TODOs and focused tests](docs/exercises/rust-logscope.md);
+later parser, CLI, reader, and worker TODOs are supplied but not due yet.
 
 Define Level (Info/Warn/Error), `Record<'a>` with a borrowed service &str and
 u32 duration, and OwnedRecord with String service. Required APIs:
@@ -401,6 +518,10 @@ u32 duration, and OwnedRecord with String service. Required APIs:
 `Record::into_owned(self) -> OwnedRecord`. Make fields/accessors testable.
 The inputs are already typed; no parser, validation, or Result API is due.
 Allocate the service String only when making the owned representation.
+
+Use the spec's week 3 acceptance command and formatting check. Compiling all
+test targets should work now; running later-stage tests will fail at their
+unfinished TODOs.
 
 **Gate/tests/deliverable:** submit library and week-03 reflection. Construct
 Info/api/10, Warn/api/20, Error/worker/100, and zero-duration records.
@@ -441,28 +562,24 @@ or CR stripping inside parse_line. Empty is a parse error. Validate bytes
 before converting the borrowed service. First test `INFO api 10`, a missing
 duration, and `INFO api -1`; explain which caller counts these failures.
 
-**Required Intermediate:** extend the existing crate, without rerunning
-cargo new. Add src/main.rs and distinct declared parser/summary modules,
-re-exporting `analyze(input: &[u8]) -> Result<Summary, AnalyzeError>` and
+**Required Intermediate:** implement the supplied parser/summary/CLI TODOs in
+the existing crate, following the [week 4 spec](docs/exercises/rust-logscope.md).
+The module declarations and main entry point are already wired, re-exporting
+`analyze(input: &[u8]) -> Result<Summary, AnalyzeError>` and
 `render(summary: &Summary) -> String` from lib.rs. Own summary service keys.
 Use the provided fixtures, implement the complete shared contract, and keep
 main as orchestration. Use at least one match and one appropriate `?`.
 Plain loops suffice; the closure/iterator refactor waits for week 5.
 Whole-file byte reads are acceptable. Handle stdout failures explicitly.
 
-```powershell
-Push-Location .\rust\logscope
-cargo run -- ..\..\fixtures\sample.log
-cargo test
-cargo fmt --check
-cargo clippy --all-targets -- -D warnings
-Pop-Location
-```
+Run the spec's week 3-4 focused acceptance commands, fmt, and clippy. Reader and
+worker tests are due in later weeks; a full unfiltered run is not this gate.
 
 **Gate/tests/deliverable:** complete the shared matrix now, including invalid
 UTF-8 and overflow. Compare rendered bytes to all three expected files.
-Add tests/cli.rs using std::process::Command and Cargo's
-`env!("CARGO_BIN_EXE_logscope")`: test success, wrong count, missing file,
+Read and run the supplied executable tests using std::process::Command and Cargo's
+`env!("CARGO_BIN_EXE_logscope")`, which includes the correct OS executable
+suffix. Construct fixture paths with Path::join; test success, wrong count, missing file,
 and a unique temporary path with spaces, cleaned up afterward.
 Submit code and week-04 reflection. Fixtures, public integration tests,
 and fatal error behavior must pass before refactoring; freeze the contract
@@ -492,10 +609,11 @@ reflection/checks 60m = 360m.
 
 **C++ mental model -> Rust concept:** constrained templates, conversions, and
 lambdas -> trait bounds, From/Into, and borrow-checked closure capture.
+Use the [week 5 TODO and test map](docs/exercises/rust-logscope.md).
 **Required Starter:** Default for Summary means the empty report. Implement
 `From<io::Error>` for AnalyzeError, retaining its cause; test both From and
 Into. A failing input does not become valid through Default.
-**Required Intermediate:** add
+**Required Intermediate:** implement the supplied
 `analyze_reader<R: std::io::Read>(reader: R) -> Result<Summary, AnalyzeError>`.
 Read all bytes then reuse analyze; use your conversion and `?`. The CLI opens
 File and uses this function. Short reads must not truncate input. Preserve
@@ -508,8 +626,9 @@ failure, partial valid bytes followed by an error, and one-byte reads.
 No partial report on read failure. Inspect the original I/O error without
 platform-specific wording assertions. Keep every earlier regression test.
 Submit updated crate and week-05 reflection with a before/after call graph.
-Run fmt, test, and clippy inside rust/logscope, then
-`cargo run -- ..\..\fixtures\malformed.log`.
+Run fmt, the spec's week 3-5 acceptance commands, and clippy inside rust/logscope, then
+`cargo run -- ..\..\fixtures\malformed.log` in Windows PowerShell or
+`cargo run -- ../../fixtures/malformed.log` in macOS Terminal.
 Gate: File and Cursor both work, failures propagate, fixture bytes are unchanged.
 **Rubric:** Starter/conversions 20 + generic reader/iterator refactor 30 +
 regression/failure tests 30 + explanation/formatting 20 = 100.
@@ -531,10 +650,11 @@ tests 105m + reflection/checks 45m = 360m.
 
 **C++ mental model -> Rust concept:** thread lifetime obligations -> scoped
 borrowing, move captures, and Send/Sync constraints.
+Use the [week 6 TODO and test map](docs/exercises/rust-logscope.md).
 **Required Starter:** two scoped threads process fixed complete in-memory
 records with private counts. Join both and assert the combined count.
 Explain why borrowing the local input is valid.
-**Required Intermediate:** add
+**Required Intermediate:** implement the supplied
 `analyze_parallel(input: &[u8], workers: usize) -> Result<Summary, AnalyzeError>`.
 
 Add a library-only parallel analyzer accepting 1-4 workers. Partition complete
@@ -568,17 +688,33 @@ and [maps](https://go.dev/tour/moretypes/19) (pages 19-22).
 **Budget:** reading 60m + setup 30m + implementation 105m +
 tests/aliasing lab 105m + reflection/checks 60m = 360m.
 
-Create source/tests before invoking run/test:
+Use the supplied module, main, and tests in `go/stats`; do not run `go mod init`
+over it. Follow the [shared spec and ordered TODOs](docs/exercises/stats.md),
+including the aliasing lab. Tests intentionally fail until implementation.
+Go remains a week 7 exercise after the Rust gates. Then run the checks from
+the course root.
+
+**Windows PowerShell**
 
 ```powershell
-New-Item -ItemType Directory -Force .\go\stats
 Push-Location .\go\stats
-go mod init example.com/rust-go-course/stats
 go run . 4 0 9 4
 go test ./...
 gofmt -l .
 go vet ./...
 Pop-Location
+```
+
+**macOS Terminal**
+
+```sh
+(
+  cd go/stats &&
+  go run . 4 0 9 4 &&
+  go test ./... &&
+  gofmt -l . &&
+  go vet ./...
+)
 ```
 
 Reimplement week 2's exact numeric grammar, output, and exit behavior using
@@ -611,17 +747,15 @@ and [os.ReadFile](https://pkg.go.dev/os#ReadFile).
 **Budget:** reading 45m + design 30m + implementation 150m +
 tests 90m + reflection/checks 45m = 360m.
 
-Create `go/logscope` and implement your frozen week 4 contract in Go.
+Use the supplied `go/logscope` and implement your frozen week 4 contract in Go.
 Use explicit errors for file and analysis failures, and count malformed records
 according to the contract. Match deterministic output exactly. Reuse the same
 inputs and expected results, not the Rust implementation's source structure.
 
-```powershell
-New-Item -ItemType Directory -Force .\go\logscope\cmd\logscope
-Push-Location .\go\logscope
-go mod init example.com/rust-go-course/logscope
-Pop-Location
-```
+The module, command entry points, and tests are supplied. Start with the
+[Go week 8 TODO map and focused checks](docs/exercises/go-logscope.md);
+do not rerun module initialization. Later interface/worker/HTTP TODOs are
+present but not part of this gate.
 
 Library package logscope lives at the module root, main at
 cmd/logscope/main.go, importing by module path. Required APIs:
@@ -636,9 +770,11 @@ Keep os.Exit at outer main after work returns.
 **Acceptance/tests/deliverable:** complete the shared matrix, all fixture byte
 outputs, CRLF, zero bytes, missing final LF, invalid UTF-8, and reverse service
 insertion order; test near-overflow updates. Manually build/invoke the CLI
-to check exits; week 9 automates it. Submit module and week-08 reflection.
-Inside go/logscope run Go checks and
-`go run .\cmd\logscope ..\..\fixtures\sample.log`.
+to check exits using [these OS-specific commands](SETUP.md#executables-exit-status-and-fixtures);
+week 9 automates it. Submit module and week-08 reflection.
+Inside go/logscope run the spec's week 8 checks and
+`go run .\cmd\logscope ..\..\fixtures\sample.log` in Windows PowerShell or
+`go run ./cmd/logscope ../../fixtures/sample.log` in macOS Terminal.
 **Rubric:** grammar/aggregation 35 + CLI/render parity 30 +
 test coverage 25 + explanation/formatting 10 = 100.
 **Optional Challenge:** wrap an error with `%w` while preserving its identity.
@@ -655,6 +791,7 @@ test coverage 25 + explanation/formatting 10 = 100.
 tests 135m + reflection/checks 45m = 360m.
 
 Refactor around standard-library reader/writer interfaces where useful.
+Use the supplied [week 9 TODOs and tests](docs/exercises/go-logscope.md).
 Test short reads, read failures, and write failures with small test doubles.
 When opening files explicitly, ensure they close on all return paths.
 Preserve CLI behavior and keep interfaces small and consumer-driven.
@@ -672,7 +809,9 @@ Verify Close once per opened handle. Keep writer failure tests at your command
 boundary. Automate CLI tests with os/exec: build once into t.TempDir, fail
 on build failure, and test success, zero/multiple arguments, a missing file,
 and a temporary path with spaces. No shell or exact OS error-text assertion.
-Submit module and week-09 reflection; run Go formatting/vet/tests.
+Use filepath.Join for filesystem paths and add the executable's .exe suffix
+only when runtime.GOOS is windows; macOS uses an unsuffixed name.
+Submit module and week-09 reflection; run formatting/vet and the spec's week 8-9 tests.
 **Rubric:** reader/interface boundary 25 + resource/error policy 25 +
 table/process tests 35 + reflection/formatting 15 = 100.
 **Optional Challenge:** demonstrate a typed-nil interface in a focused test.
@@ -688,7 +827,8 @@ table/process tests 35 + reflection/formatting 15 = 100.
 **Budget:** reading 60m + design 45m + implementation 120m +
 tests 90m + reflection/checks 45m = 360m.
 
-Add a library-only analyzer with 1-4 workers. Give workers private summaries,
+Implement the supplied library-only analyzer with 1-4 workers. Follow the
+[week 10 TODO/test map](docs/exercises/go-logscope.md). Give workers private summaries,
 bound queued work, and use context cancellation. On failure or cancellation,
 stop sending work, wait for every worker, and return an error rather than a
 partial success. Test invalid counts, cancellation, worker errors, and
@@ -712,13 +852,16 @@ pre-canceled context, and checked-merge overflow. Use an unexported testable
 worker helper/callback to signal entry, block on ctx.Done, and demonstrate
 in-flight cancellation and every worker exiting before return. Inject a worker
 error through the same seam. Timeouts guard deadlock; sleeps do not coordinate.
-Submit module and week-10 reflection; run all Go checks plus race tests.
+Submit module and week-10 reflection; run the spec's week 8-10 checks and race
+tests. HTTP tests become required in week 11.
 **Rubric:** bounded ownership 30 + cancellation/error/join correctness 30 +
 equivalence/lifecycle tests 25 + reflection/race evidence 15 = 100.
 **Optional Challenge:** measure overhead without a speed requirement.
 
 Run race tests on a supported toolchain. On Windows they require a compatible
-C compiler in addition to Go; ordinary tests passing is not a race-clean result.
+C compiler in addition to Go. See the
+[Windows/macOS race prerequisites](SETUP.md#race-detector-prerequisites).
+Ordinary tests passing is not a race-clean result.
 
 **Reflect:** Who closes each channel, and what proves every worker has stopped?
 
@@ -731,7 +874,9 @@ C compiler in addition to Go; ordinary tests passing is not a race-clean result.
 **Budget:** reading 45m + design 30m + implementation 135m +
 tests 105m + reflection/checks 45m = 360m.
 
-Add a separate server command. Read and analyze one file at startup, then serve
+Implement the supplied separate server command using the
+[week 11 TODO/test map](docs/exercises/go-logscope.md).
+Read and analyze one file at startup, then serve
 the immutable report at GET `/summary`. Bind only to `127.0.0.1:8080`.
 Define and test unknown-path and unsupported-method behavior. Use `httptest`
 without depending on an available port. Handle Ctrl+C, use a bounded shutdown
@@ -755,15 +900,35 @@ headers, empty bodies, and exact sample/empty report bytes. Run concurrent
 handler tests without mutations, normal/race checks, and record manual startup
 and shutdown. Submit module and week-11 reflection.
 
+**Windows PowerShell**
+
 ```powershell
 Push-Location .\go\logscope
+New-Item -ItemType Directory -Force .\bin
 go build -o .\bin\logserve.exe .\cmd\logserve
+if ($LASTEXITCODE -ne 0) { Pop-Location; throw 'Build failed.' }
 .\bin\logserve.exe ..\..\fixtures\sample.log
+$LASTEXITCODE
 Pop-Location
 ```
 
-It blocks: in another terminal use
-`curl.exe -i http://127.0.0.1:8080/summary`, then Ctrl+C in the first.
+**macOS Terminal**
+
+```sh
+(
+  cd go/logscope &&
+  mkdir -p bin &&
+  go build -o bin/logserve ./cmd/logserve || exit
+  ./bin/logserve ../../fixtures/sample.log
+  printf 'exit=%s\n' "$?"
+)
+```
+
+It blocks. In another terminal, from any directory, use
+`curl.exe -i http://127.0.0.1:8080/summary` on Windows or
+`curl -i http://127.0.0.1:8080/summary` on macOS. Then press Ctrl+C in the first
+terminal; its next command displays the server's exit status, expected 0
+on successful shutdown.
 If the port is occupied, do not kill unrelated processes; retry when free.
 Tests must not need that port.
 **Rubric:** endpoint contract 30 + startup/shutdown/resource handling 25 +
@@ -780,19 +945,20 @@ Consult [testing](https://pkg.go.dev/testing) for gaps only.
 **Budget:** review/reading 30m + parity harness 90m + small fixes 90m +
 final checks 60m + comparison/submission 90m = 360m.
 
-No new product. Build a parity test harness that runs both compiled CLIs on the
-same fixtures. Compare bytes and exit status against expected results, not
-only against each other. Cover empty input, malformed input, CRLF, missing
-files, and paths with spaces. Rerun checks in every project.
+No new product. Trace and run the supplied `go/logscope/parity_test.go` using
+the [capstone spec](docs/exercises/parity.md). It builds both sequential CLIs
+into temporary locations and compares bytes and exit status against expected
+results, not only against each other. Repair implementation gaps and rerun
+checks in every project.
 
-Place parity_test.go in go/logscope. Use os/exec argument arrays with a generous
-context timeout; build Rust via cargo using manifest
-`..\..\rust\logscope\Cargo.toml` and Go into t.TempDir. Document the assumption
-of Cargo's default debug target directory; account for executable suffixes.
-Build failures fail tests. Capture bytes/status, not normalized shell text.
-Check all fixture expectations plus no/two arguments, missing file, path
-with spaces, a temporary CRLF input, and invalid bytes with manually calculated
-expectations. Both toolchains are now required by this Go test.
+The harness uses filepath.Join, native executable suffixes, argument arrays,
+timeouts, and an explicit temporary Cargo target directory. Build failures
+fail tests. It covers every fixture, no/two arguments, missing files, filenames
+with spaces or leading dashes, CRLF, and invalid bytes with independent
+expectations. Both toolchains must be on PATH. The explicit `parity` build tag
+keeps this dependency out of earlier Go gates; run
+`go test -tags parity -count=1 -run '^TestParity$' .` inside `go/logscope` in
+week 12. Untagged tests alone are not capstone acceptance.
 
 Write `docs/comparison.md` (700-1000 words) using concrete examples from your
 work: ownership and aliasing, error propagation, resource cleanup, interfaces,
@@ -817,22 +983,30 @@ comparison with concrete examples 30 + clean navigable portfolio 10 = 100.
 
 ## Checks before submitting
 
-Inside each Rust crate:
+For an intermediate logscope week, use the cumulative test selectors in its
+spec so later-week TODOs do not block the current gate. The commands below are
+the full-project checks once all stages are due.
 
-```powershell
+Inside each Rust crate, in either Windows PowerShell or macOS Terminal:
+
+```text
 cargo fmt --check
 cargo test
 cargo clippy --all-targets -- -D warnings
 ```
 
 Install the `rustfmt` and `clippy` components through `rustup` if missing.
-Inside each Go module:
+Inside each Go module, in either shell:
 
-```powershell
+```text
 gofmt -l .
 go vet ./...
 go test ./...
 ```
+
+For week 12, also run
+`go test -tags parity -count=1 -run '^TestParity$' .` inside `go/logscope`.
+This explicitly enables the cross-language harness and requires both toolchains.
 
 `gofmt -l .` must produce an empty listing; it does not fail merely because
 formatting differs. Use `gofmt -w .` to format. Add `go test -race ./...` for

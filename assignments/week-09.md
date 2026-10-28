@@ -12,39 +12,66 @@ tests 135m + reflection/checks 45m = 360m.
 
 ## Assignment
 
-Add `AnalyzeReader(r io.Reader) (Summary, error)`. Read all bytes and reuse
+Complete G9.1-G9.3 in the supplied
+[Go logscope exercise spec](../docs/exercises/go-logscope.md). Keep the existing
+module; no initialization is needed. The reader/resource/process tests are
+already active. Use this week's cumulative selector so future TODOs do not
+block the gate.
+
+Implement `AnalyzeReader(r io.Reader) (Summary, error)`. Read all bytes and reuse
 Analyze. If reading returns bytes and an error, return an error, not a partial
-summary. Preserve causes using wrapping. Add
-`AnalyzeFile(path string) (Summary, error)` which opens the file and defers
-Close after a successful Open. The CLI uses AnalyzeFile.
+summary. Preserve causes using wrapping. Implement
+`AnalyzeFile(path string) (Summary, error)` which opens the file and transfers
+it to the supplied-signature `analyzeReadCloser` helper, which defers Close.
+Replace the week-8 `analyzeCLIFile` adapter body with AnalyzeFile; the CLI then
+uses the explicit resource boundary.
 
 Explicit policy for this read-only helper: report a Close error if analysis
 succeeded; preserve the earlier read/analysis error if both fail. A named
-return or small helper can implement this; explain your choice. Add an
+return or small helper can implement this; explain your choice. Implement the
 unexported helper taking io.ReadCloser so tests can inject Close outcomes.
 Do not invent a large filesystem interface.
 
 ## Required tests and checks
 
-Use table-driven tests with named cases for the shared matrix.
+Read, run, and extend the supplied table-driven tests with named cases for the
+shared matrix.
 Use strings.NewReader or bytes.NewReader for success; test-only types implement
 io.Reader/io.ReadCloser without an inheritance declaration.
 Cover immediate read failure, partial bytes plus error, one-byte reads,
 successful close, close failure, and simultaneous read/close failure.
 Assert Close is called exactly once on every successfully opened test handle.
 
-Automate CLI tests with os/exec: build once into a t.TempDir path, then run
+The supplied CLI tests use os/exec: build once into a t.TempDir path, then run
 that executable for success, zero/multiple arguments, a nonexistent file,
 and a temporary path with spaces. Compare captured bytes, stderr prefix, and
 exit status. Fail the test if the binary build fails. Do not assert exact
 platform-specific OS messages or run through a shell.
+Construct filesystem paths with filepath.Join. Name the executable logscope.exe
+only on Windows (`runtime.GOOS == "windows"`), otherwise logscope, so the same
+process tests work on macOS.
+
+From the course root, run only your OS's block.
+
+**Windows PowerShell**
 
 ```powershell
 Push-Location .\go\logscope
-go test ./...
+go test -run '^TestWeek(08|09)' ./...
 gofmt -l .
 go vet ./...
 Pop-Location
+```
+
+**macOS Terminal**
+
+```sh
+(
+  cd go/logscope &&
+  go test -run '^TestWeek(08|09)' ./... &&
+  gofmt -l . &&
+  go vet ./...
+)
 ```
 
 Submit module and `docs/submissions/week-09.md`.

@@ -28,6 +28,7 @@ explicit From/Into conversions, and borrow-checked closure captures.
 
 ## Required Starter
 
+Follow the [week 5 ordered TODOs and tests](../docs/exercises/rust-logscope.md#week-5-traits-and-a-generic-reader).
 Implement Default for Summary as the empty report state. Implement
 `From<std::io::Error> for AnalyzeError`, preserving the original error.
 Test Default rendering against empty.expected.txt and the conversion through
@@ -36,42 +37,59 @@ to make invalid log input valid.
 
 ## Required Intermediate project
 
-In the existing crate, add
+In the existing crate, implement the supplied
 `analyze_reader<R: std::io::Read>(reader: R) -> Result<Summary, AnalyzeError>`.
-Extend your error type to preserve an I/O error. Read all bytes, then reuse
+Use the supplied I/O error variant to preserve the cause. Read all bytes, then reuse
 analyze. Use your From implementation to propagate I/O errors with `?`.
 This is a testability boundary, not a streaming-memory promise.
 The CLI now opens a File and calls this function. Preserve every shared
 contract behavior and the earlier byte-slice API.
 
-Write a tiny test-only reader implementing Read. It returns some bytes, then
+Trace the supplied tiny test-only reader implementing Read. It returns some bytes, then
 an I/O error. Assert that analyze_reader returns an error rather than a
-summary of the prefix. A second reader can return one byte per read; the
+summary of the prefix. A second reader returns one byte per read; the
 complete result must equal Cursor over the same input. Do not assume a single
 read fills a requested buffer.
 
-Refactor one renderer collection loop to a closure with map/collect (sorting
-remains explicit). Keep checked aggregation as a loop if clearer. In the
+Refactor one renderer collection loop to a closure with map/collect (preserve
+the BTreeMap's explicit key ordering). Keep checked aggregation as a loop if clearer. In the
 reflection, explain iter versus into_iter and what the closure captures.
 Do not use filter_map to discard malformed lines without incrementing invalid.
 
 ## Gate, checks, and acceptance
 
+From the course root, run only your OS's block.
+
+**Windows PowerShell**
+
 ```powershell
 Push-Location .\rust\logscope
-cargo test
+cargo test --test week03 --test week04_parser --test week04_summary --test week04_cli --test week05
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 cargo run -- ..\..\fixtures\malformed.log
 Pop-Location
 ```
 
-Keep the existing parser, fixture, overflow, and CLI tests. Add tests for
+**macOS Terminal**
+
+```sh
+(
+  cd rust/logscope &&
+  cargo test --test week03 --test week04_parser --test week04_summary --test week04_cli --test week05 &&
+  cargo fmt --check &&
+  cargo clippy --all-targets -- -D warnings &&
+  cargo run -- ../../fixtures/malformed.log
+)
+```
+
+Keep the existing parser, fixture, overflow, and CLI tests. Supplied week05 tests cover
 Cursor containing empty input, sample bytes, an immediate read failure,
 and a failure after a valid record. Test your error display without comparing
 platform-specific OS error wording. Error variants or source chaining must
 make the I/O cause inspectable. Do not create a custom reader framework or
-duplicate aggregation for each reader type.
+duplicate aggregation for each reader type. Week06 tests remain intentionally
+unfinished; they are not this week's gate.
 
 Submit updated crate and `docs/submissions/week-05.md`, including a brief
 before/after call graph and evidence that output did not change.

@@ -13,8 +13,14 @@ implementation 135m + tests 105m + reflection/checks 45m = 360m.
 
 ## Assignment
 
-Add `go/logscope/cmd/logserve/main.go` and a testable handler constructor in
-the library. It accepts an immutable rendered report. Do not parse request
+Complete G11.1-G11.4 in the supplied
+[Go logscope exercise spec](../docs/exercises/go-logscope.md). The separate
+`cmd/logserve/main.go` signal/process adapter and active tests are included;
+the handler, server configuration, startup, and shutdown remain learner TODOs.
+No new module is needed. Follow the spec's dependency seams and ordered tests.
+
+Implement the testable handler constructor in the library.
+It accepts an immutable rendered report. Do not parse request
 uploads or share mutable summary maps between requests.
 
 `logserve` accepts exactly one file path. Wrong argument count exits 2;
@@ -43,6 +49,16 @@ Successful shutdown exits 0. No TLS, persistence, or deployment work.
 
 Test all endpoint cases with httptest, including exact header/body and empty
 input report. Concurrent handler tests must not mutate captured data.
+The supplied tests also exercise startup failures and real ephemeral-loopback
+server cancellation, graceful completion, and forced-close fallback. Run and
+inspect them, then extend the cases; tests never occupy port 8080 or leave a
+server running. Shutdown failure remains an error even after fallback Close.
+
+From the course root, run only your OS's block. Resolve any unavailable
+[race-tool prerequisites](../SETUP.md#race-detector-prerequisites) or record
+that check as incomplete.
+
+**Windows PowerShell**
 
 ```powershell
 Push-Location .\go\logscope
@@ -50,13 +66,64 @@ go test ./...
 go test -race ./...
 gofmt -l .
 go vet ./...
-go build -o .\bin\logserve.exe .\cmd\logserve
-.\bin\logserve.exe ..\..\fixtures\sample.log
 Pop-Location
 ```
 
-The server blocks: in a second terminal run
-`curl.exe -i http://127.0.0.1:8080/summary`, then Ctrl+C in the first.
+**macOS Terminal**
+
+```sh
+(
+  cd go/logscope &&
+  go test ./... &&
+  go test -race ./... &&
+  gofmt -l . &&
+  go vet ./...
+)
+```
+
+Then build and run the server from the course root.
+
+**Windows PowerShell**
+
+```powershell
+Push-Location .\go\logscope
+New-Item -ItemType Directory -Force .\bin
+go build -o .\bin\logserve.exe .\cmd\logserve
+if ($LASTEXITCODE -ne 0) { Pop-Location; throw 'Build failed.' }
+.\bin\logserve.exe ..\..\fixtures\sample.log
+$LASTEXITCODE
+Pop-Location
+```
+
+**macOS Terminal**
+
+```sh
+(
+  cd go/logscope &&
+  mkdir -p bin &&
+  go build -o bin/logserve ./cmd/logserve || exit
+  ./bin/logserve ../../fixtures/sample.log
+  printf 'exit=%s\n' "$?"
+)
+```
+
+The server blocks. In a second terminal, from any directory, use your OS's
+request command:
+
+**Windows PowerShell**
+
+```powershell
+curl.exe -i http://127.0.0.1:8080/summary
+```
+
+**macOS Terminal**
+
+```sh
+curl -i http://127.0.0.1:8080/summary
+```
+
+Press Ctrl+C in the first terminal. Its next command displays the server's
+exit status, which must be 0 on successful shutdown.
 If port 8080 is occupied, do not kill unrelated processes; record the conflict
 and retry when free. Tests must not depend on that fixed port.
 
@@ -67,4 +134,5 @@ handler tests 30 + reflection/formatting 15 = 100.
 **C++ questions:** (1) Why is immutable captured text safe to share here?
 (2) Which resource lifetimes are explicit rather than garbage-collected?
 
-**Optional stretch (ungraded):** a test server on an ephemeral loopback port.
+**Optional stretch (ungraded):** extend the supplied ephemeral-loopback tests
+with additional concurrent-client cases.

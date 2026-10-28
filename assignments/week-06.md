@@ -22,18 +22,24 @@ Send/Sync constraints. Shared ownership alone does not synchronize mutation.
 
 ## Required Starter
 
-Use two scoped threads on fixed, complete in-memory records and join them.
+Complete W6-S in the supplied `tests/week06.rs`: use two scoped threads on
+fixed, complete in-memory records and join them.
 Give each a private count, then assert the sum after both joins. Explain why
 the scope can borrow a local buffer. This is a small test feeding the project,
 not a second command or shared-map implementation.
 
 ## Required Intermediate project
 
-Add a library-only extension:
+Implement the supplied library-only extension:
 `analyze_parallel(input: &[u8], workers: usize) -> Result<Summary, AnalyzeError>`.
 Accept workers 1..4; otherwise return an error. Keep the sequential CLI
 unchanged. Normalize and partition complete lines, never arbitrary byte chunks
 that can cut a record. Empty lines still follow the shared contract.
+
+Follow the [week 6 TODO/helper map and focused selectors](../docs/exercises/rust-logscope.md#week-6-bounded-scoped-concurrency-unchanged-cli).
+Implement checked merge, join reduction, then partition/analysis in that order.
+The supplied acceptance tests inject worker failures and merge overflow; do
+not replace these with skipped tests or silently successful empty results.
 
 Use at most workers scoped threads, each with its own Summary and borrowed
 line slices. A simple fixed partition of a vector of line slices is sufficient;
@@ -55,12 +61,27 @@ Unit-test checked summary merging near overflow, including overlapping
 service keys. Test your join/reduction helper using test-only workers that
 return Err or panic; verify no success summary escapes.
 
+From the course root, run only your OS's block.
+
+**Windows PowerShell**
+
 ```powershell
 Push-Location .\rust\logscope
 cargo test
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 Pop-Location
+```
+
+**macOS Terminal**
+
+```sh
+(
+  cd rust/logscope &&
+  cargo test &&
+  cargo fmt --check &&
+  cargo clippy --all-targets -- -D warnings
+)
 ```
 
 Submit crate and `docs/submissions/week-06.md` with a diagram of ownership
